@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'TLSynDataGene'
-copyright = '2019, Sergio Peignier, Mounir Atiq'
-author = 'Sergio Peignier, Mounir Atiq'
+copyright = '2019, Sergio Peignier, Mounir Atiq, Ludovic Minvielle'
+author = 'Sergio Peignier, Mounir Atiq, Ludovic Minvielle'
 
 # The short X.Y version
 version = ''
