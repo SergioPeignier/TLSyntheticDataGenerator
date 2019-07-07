@@ -9,7 +9,7 @@ controlled by specific parameters
 The easiest way to install the generator is using `pip` the package installer for Python.
 Typing the command:
 
-`pip install `
+`pip install TLSynDataGene`
 
 ## Documentation
 

@@ -55,7 +55,7 @@ class Cluster:
             class_label (int): Class membership label for the current cluster
             Different clusters may constitute a class
 
-        Examples:
+        Example:
             >>> import numpy as np
             >>> np.random.seed(0)
             >>> clus = Cluster(weight=1,
@@ -105,7 +105,7 @@ class Cluster:
         Generate a random point within the cluster
 
         Returns: numpy.array
-        point coordinates along each feature
+            point coordinates along each feature
         """
         point_coordinates = np.random.randn(self.dimensionality)
         point_coordinates *= self.radii
@@ -154,7 +154,7 @@ class DatasetGenerator:
             class_labels (list): Class membership label for eachs cluster
             Different clusters may constitute a class
 
-        Examples:
+        Example:
             >>> import numpy as np
             >>> np.random.seed(0)
             >>> datagen = DatasetGenerator(
@@ -220,7 +220,7 @@ class DatasetGenerator:
         """
         Generate the dataset by yielding data objects one after the other.
         This function is suitable for very large datasets
-        
+
         Returns:
             numpy.array: new data point coordinates
             int: new data point class label
