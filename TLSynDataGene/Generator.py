@@ -220,6 +220,7 @@ class DatasetGenerator:
         """
         Generate the dataset by yielding data objects one after the other.
         This function is suitable for very large datasets
+        
         Returns:
             numpy.array: new data point coordinates
             int: new data point class label
@@ -231,6 +232,7 @@ class DatasetGenerator:
                                           p=self.probability_draw_cluster)[0]
             new_point = self.clusters[cluster_id].generate_point()
             yield new_point,self.clusters[cluster_id].class_label
+
 
     def _compute_probabilities_draw_label(self):
         """
