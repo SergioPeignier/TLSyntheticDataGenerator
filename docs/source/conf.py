@@ -14,7 +14,10 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+print(os.path.abspath('../../TLSynDataGene/'))
+print(os.path.abspath('../'))
+print(os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../TLSynDataGene/'))
 
 
 # -- Project information -----------------------------------------------------
@@ -84,7 +87,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "haiku"
+html_theme = 'classic'
 #html_theme_options = {
 #    "rightsidebar": "false",
 #    "relbarbgcolor": "black"
@@ -198,3 +201,5 @@ epub_exclude_files = ['search.html']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+autodoc_mock_imports = ["sklearn", "numpy", "pandas"]
