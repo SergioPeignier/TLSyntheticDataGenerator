@@ -18,7 +18,9 @@ __maintainer__ = "Sergio Peignier, Mounir Atiq"
 __email__ = "sergio.peignier@insa-lyon.fr, atiq.mounir@gmail.com"
 __status__ = "pre-alpha"
 
+
 class Cluster:
+
     def __init__(self,
                  weight,
                  dimensionality,
@@ -70,6 +72,11 @@ class Cluster:
             >>> clus.generate_point()
             [1.09762701 1.43037873 1.20552675]
         """
+        # checks for right values of parameters
+        if (max_gauss_dim > dimensionality) or (max_gauss_dim < 0):
+            raise ValueError('max_gauss_dim must be >= 0 and <= dimensionality')
+        if (min_gauss_dim > dimensionality) or (min_gauss_dim < 0):
+            raise ValueError('min_gauss_dim must be >= 0 and <= dimensionality')
         # set dimensionality, weight, boundary and class label
         self.dimensionality = dimensionality
         self.weight = weight
@@ -91,11 +98,11 @@ class Cluster:
         self.radii = np.sqrt(self.radii)
         # Draw gauss dimensions and not gauss dimensions
         self.nb_gauss_dims = np.random.randint(self.min_gauss_dim,
-                                                   self.max_gauss_dim+1)
-        self.nb_not_gauss_dims = self.dimensionality-self.nb_gauss_dims
+                                               self.max_gauss_dim + 1)
+        self.nb_not_gauss_dims = self.dimensionality - self.nb_gauss_dims
         gauss_dims_0 = np.zeros(self.nb_gauss_dims)
         unif_dims_1 = np.ones(self.nb_not_gauss_dims)
-        self.uniform_dims = np.hstack((unif_dims_1,gauss_dims_0))
+        self.uniform_dims = np.hstack((unif_dims_1, gauss_dims_0))
         self.uniform_dims = self.uniform_dims.astype(bool)
         np.random.shuffle(self.uniform_dims)
         print(self.centroid)
@@ -116,7 +123,9 @@ class Cluster:
         point_coordinates[self.uniform_dims] = uniform_coord
         return point_coordinates
 
+
 class DatasetGenerator:
+
     def __init__(self,
                  number_points,
                  weights,
@@ -127,7 +136,7 @@ class DatasetGenerator:
                  max_coordinate,
                  min_gauss_dim_var,
                  max_gauss_dim_var,
-                 class_labels = None,
+                 class_labels=None,
                  ):
         """
         Cluster is a class that allows to generate datasets consituted of points
@@ -200,21 +209,23 @@ class DatasetGenerator:
         self.clusters = []
         if class_labels is None:
             class_labels = range(len(self.weights))
+        else:  # check if right size
+            if len(class_labels) != len(weights):
+                raise ValueError('class_labels and weights must be of same length')
         self.class_labels = class_labels
-        for i,weight in enumerate(self.weights):
-            cluster  = Cluster(weight,
-                               dimensionality,
-                               min_gauss_dim,
-                               max_gauss_dim,
-                               min_coordinate,
-                               max_coordinate,
-                               min_gauss_dim_var,
-                               max_gauss_dim_var,
-                               class_labels[i],
-                               )
+        for i, weight in enumerate(self.weights):
+            cluster = Cluster(weight,
+                              dimensionality,
+                              min_gauss_dim,
+                              max_gauss_dim,
+                              min_coordinate,
+                              max_coordinate,
+                              min_gauss_dim_var,
+                              max_gauss_dim_var,
+                              class_labels[i],
+                              )
             self.clusters.append(cluster)
         self._compute_probabilities_draw_cluster()
-
 
     def generate_stream(self):
         """
@@ -231,8 +242,7 @@ class DatasetGenerator:
                                           1,
                                           p=self.probability_draw_cluster)[0]
             new_point = self.clusters[cluster_id].generate_point()
-            yield new_point,self.clusters[cluster_id].class_label
-
+            yield new_point, self.clusters[cluster_id].class_label
 
     def _compute_probabilities_draw_label(self):
         """
@@ -247,9 +257,8 @@ class DatasetGenerator:
         props = np.zeros(N)
         S = sum(self.weights)
         for i in range(N):
-            props[i] = sum(self.weights[np.array(self.class_labels) == labels[i]])/S
+            props[i] = sum(self.weights[np.array(self.class_labels) == labels[i]]) / S
         return props
-
 
     def _compute_probabilities_draw_cluster(self):
         """
@@ -273,13 +282,13 @@ class DatasetGenerator:
         self.number_points = size
         X = []
         Y = []
-        for i,point in enumerate(self.generate_stream()):
-            x,y = point
+        for i, point in enumerate(self.generate_stream()):
+            x, y = point
             X.append(x)
             Y.append(y)
-        X = pd.DataFrame(X,columns= list(range(self.dimensionality)))
+        X = pd.DataFrame(X, columns=list(range(self.dimensionality)))
         Y = pd.Series(Y)
-        return X,Y
+        return X, Y
 
     def _get_file_name(self):
         """
@@ -291,7 +300,7 @@ class DatasetGenerator:
         d = str(self.dimensionality)
         c = str(self.weights.size)
         n = str(self.number_points)
-        return "D_"+d+"_C_"+c+"_N_"+n
+        return "D_" + d + "_C_" + c + "_N_" + n
 
 
 def apply_drift(clusters, cluster_feature_speed, min_coordinate, max_coordinate):
@@ -301,8 +310,8 @@ def apply_drift(clusters, cluster_feature_speed, min_coordinate, max_coordinate)
     Args:
         clusters (list): list of Cluster objects
         cluster_feature_speed (dict): dict keys are cluster index and values
-        are numpy.array representing the "speed" of the cluster centroid along
-        each dimension.
+        are dict representing the "speed" of the cluster centroid along
+        each dimension (keys are dimension indexes, values are the speeds).
         min_coordinate (float): minimal coordinate (keep the points in a
         hyper-cube)
         max_coordinate (float): maximal coordinate (keep the points in a
@@ -317,6 +326,7 @@ def apply_drift(clusters, cluster_feature_speed, min_coordinate, max_coordinate)
             clusters[cluster_id].centroid[feature] += speed
         collision(clusters[cluster_id], min_coordinate, max_coordinate)
 
+
 def apply_density_change(clusters, cluster_feature_std):
     """
     Apply a std change to the gaussian features of the clusters
@@ -329,6 +339,22 @@ def apply_density_change(clusters, cluster_feature_std):
     for cluster_id, feature_std in cluster_feature_std.items():
         for feature, std in feature_std.items():
             clusters[cluster_id].radii[feature] = std
+
+
+def apply_std_change(clusters, cluster_feature_std):
+    """
+    Apply a std change to the gaussian features of the clusters
+
+    Args:
+        clusters (list): list of Cluster objects
+        cluster_feature_std (dict): dict keys are cluster index and values are
+        dicts with feature ids as keys and std coefficients as values. A value > 1
+        is a stretch, a value < 1 will perform a squeeze.
+    """
+    for cluster_id, feature_std in cluster_feature_std.items():
+        for feature, coeff in feature_std.items():
+            clusters[cluster_id].radii[feature] *= coeff
+
 
 def create_new_clusters(clusters, list_parameters_cluster_creation):
     """
@@ -344,6 +370,7 @@ def create_new_clusters(clusters, list_parameters_cluster_creation):
         new_cluster = Cluster(**parameter)
         clusters.append(new_cluster)
 
+
 def delete_clusters(clusters, clusters_id):
     """
     Delete clusters
@@ -354,6 +381,7 @@ def delete_clusters(clusters, clusters_id):
     """
     for cluster_id in clusters_id:
         clusters.pop(cluster_id)
+
 
 def change_cluster_weight(clusters, clusters_weights):
     """
@@ -366,6 +394,7 @@ def change_cluster_weight(clusters, clusters_weights):
     """
     for cluster_id, weight in clusters_weights.items():
         clusters[cluster_id].weight = weight
+
 
 def loose_feature(clusters, clusters_features):
     """
@@ -382,6 +411,7 @@ def loose_feature(clusters, clusters_features):
                 clusters[cluster_id].uniform_dims[feature] = 1
                 clusters[cluster_id].nb_gauss_dims -= 1
                 clusters[cluster_id].nb_not_gauss_dims += 1
+
 
 def gain_feature(clusters, clusters_features):
     """
