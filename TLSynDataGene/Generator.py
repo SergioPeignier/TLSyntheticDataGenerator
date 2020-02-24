@@ -271,6 +271,15 @@ class DatasetGenerator:
         weights = np.asarray([cluster.weight for cluster in self.clusters])
         self.probability_draw_cluster = weights / weights.sum()
 
+    def _update_weights_labels(self):
+        """
+        If modified within clusters, weights and class_labels should be updated
+        accordingly
+        """
+        self.weights = np.asarray([cluster.weight for cluster in self.clusters])
+        self.class_labels = np.asarray([cluster.class_label for cluster in self.clusters])
+
+
     def generate_dataset(self, size):
         """
         Generate an enitre synthetic dataset and returns it
@@ -279,6 +288,7 @@ class DatasetGenerator:
             pandas.DataFrame: data object coordinates X
             pandas.Series: data object class membership Y
         """
+        self._update_weights_labels()
         self.number_points = size
         X = []
         Y = []
@@ -379,7 +389,7 @@ def delete_clusters(clusters, clusters_id):
         clusters (list): list of Cluster objects (new clusters are appended)
         clusters_id (list): list of clusters ids to pop
     """
-    for cluster_id in clusters_id:
+    for cluster_id in sorted(clusters_id, reverse=True):
         clusters.pop(cluster_id)
 
 
